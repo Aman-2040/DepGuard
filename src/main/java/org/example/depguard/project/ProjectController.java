@@ -1,5 +1,6 @@
 package org.example.depguard.project;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public Project createProject(@RequestBody Project project) {
+    public Project createProject(@Valid @RequestBody Project project) {
         return projectService.createProject(project);
     }
 
@@ -30,7 +31,7 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public Project updateProject(@PathVariable Long id,
-                                 @RequestBody Project updatedProject) {
+                                 @Valid @RequestBody Project updatedProject) {
         return projectService.updateProject(id, updatedProject);
     }
 

@@ -1,6 +1,8 @@
 package org.example.depguard.project;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.*;
 
@@ -10,8 +12,14 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank
+    @Size(min = 3, max = 100)
     private String name;
+
+    @NotBlank
     private String repositoryUrl;
+
     private LocalDateTime createdAt;
 
     public Project() {
