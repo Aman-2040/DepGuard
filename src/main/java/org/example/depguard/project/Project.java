@@ -2,6 +2,7 @@ package org.example.depguard.project;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.*;
@@ -18,6 +19,7 @@ public class Project {
     private String name;
 
     @NotBlank
+    @Pattern(regexp = "^https?://.+")
     private String repositoryUrl;
 
     private LocalDateTime createdAt;
