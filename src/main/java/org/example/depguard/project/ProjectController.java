@@ -1,6 +1,8 @@
 package org.example.depguard.project;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +17,9 @@ public class ProjectController {
     }
 
     @PostMapping
-    public Project createProject(@Valid @RequestBody Project project) {
-        return projectService.createProject(project);
+    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(projectService.createProject(project));
     }
 
     @GetMapping
@@ -36,7 +39,9 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProject(@PathVariable Long id) {
+
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 }

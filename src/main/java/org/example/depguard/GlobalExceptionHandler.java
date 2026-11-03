@@ -1,5 +1,6 @@
 package org.example.depguard;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,5 +36,15 @@ public class GlobalExceptionHandler {
         errors.put("message", ex.getReason());
 
         return ResponseEntity.status(ex.getStatusCode()).body(errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        errors.put("message", "Something went wrong");
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
 }
