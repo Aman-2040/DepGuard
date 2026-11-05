@@ -4,7 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.example.depguard.dto.ProjectRequestDTO;
+import org.example.depguard.dto.ProjectResponseDTO;
 import java.util.List;
 
 @RestController
@@ -17,25 +18,29 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
+    public ResponseEntity<ProjectResponseDTO> createProject(
+            @Valid @RequestBody ProjectRequestDTO request) {
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(projectService.createProject(project));
+                .body(projectService.createProject(request));
     }
 
     @GetMapping
-    public List<Project> getAllProjects() {
+    public List<ProjectResponseDTO> getAllProjects() {
         return projectService.getAllProjects();
     }
 
     @GetMapping("/{id}")
-    public Project getProjectById(@PathVariable Long id) {
+    public ProjectResponseDTO getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
     }
 
     @PutMapping("/{id}")
-    public Project updateProject(@PathVariable Long id,
-                                 @Valid @RequestBody Project updatedProject) {
-        return projectService.updateProject(id, updatedProject);
+    public ProjectResponseDTO updateProject(
+            @PathVariable Long id,
+            @Valid @RequestBody ProjectRequestDTO request) {
+
+        return projectService.updateProject(id, request);
     }
 
     @DeleteMapping("/{id}")

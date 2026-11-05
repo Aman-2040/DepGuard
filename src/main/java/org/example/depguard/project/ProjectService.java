@@ -3,7 +3,10 @@ package org.example.depguard.project;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.example.depguard.dto.ProjectRequestDTO;
+import org.example.depguard.dto.ProjectResponseDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,29 +17,81 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public Project createProject(Project project) {
-        return projectRepository.save(project);
+    public ProjectResponseDTO createProject(ProjectRequestDTO request) {
+
+        Project project = new Project();
+
+        project.setName(request.getName());
+        project.setRepositoryUrl(request.getRepositoryUrl());
+
+        Project savedProject = projectRepository.save(project);
+
+        ProjectResponseDTO response = new ProjectResponseDTO();
+
+        response.setId(savedProject.getId());
+        response.setName(savedProject.getName());
+        response.setRepositoryUrl(savedProject.getRepositoryUrl());
+        response.setCreatedAt(savedProject.getCreatedAt());
+
+        return response;
     }
 
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public List<ProjectResponseDTO> getAllProjects() {
+
+        List<Project> projects = projectRepository.findAll();
+
+        List<ProjectResponseDTO> response = new ArrayList<>();
+
+        for (Project project : projects) {
+
+            ProjectResponseDTO dto = new ProjectResponseDTO();
+
+            dto.setId(project.getId());
+            dto.setName(project.getName());
+            dto.setRepositoryUrl(project.getRepositoryUrl());
+            dto.setCreatedAt(project.getCreatedAt());
+
+            response.add(dto);
+        }
+
+        return response;
     }
 
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Project not found"));
-    }
+    public ProjectResponseDTO getProjectById(Long id) {
 
-    public Project updateProject(Long id, Project updatedProject) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Project not found"));
 
-        project.setName(updatedProject.getName());
-        project.setRepositoryUrl(updatedProject.getRepositoryUrl());
+        ProjectResponseDTO response = new ProjectResponseDTO();
 
-        return projectRepository.save(project);
+        response.setId(project.getId());
+        response.setName(project.getName());
+        response.setRepositoryUrl(project.getRepositoryUrl());
+        response.setCreatedAt(project.getCreatedAt());
+
+        return response;
+    }
+
+    public ProjectResponseDTO updateProject(Long id, ProjectRequestDTO request) {
+
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Project not found"));
+
+        project.setName(request.getName());
+        project.setRepositoryUrl(request.getRepositoryUrl());
+
+        Project savedProject = projectRepository.save(project);
+
+        ProjectResponseDTO response = new ProjectResponseDTO();
+
+        response.setId(savedProject.getId());
+        response.setName(savedProject.getName());
+        response.setRepositoryUrl(savedProject.getRepositoryUrl());
+        response.setCreatedAt(savedProject.getCreatedAt());
+
+        return response;
     }
 
     public void deleteProject(Long id) {
