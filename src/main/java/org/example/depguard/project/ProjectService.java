@@ -1,60 +1,41 @@
 package org.example.depguard.project;
 
+import org.example.depguard.mapper.ProjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.example.depguard.dto.ProjectRequestDTO;
 import org.example.depguard.dto.ProjectResponseDTO;
 
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
+    private final ProjectMapper projectMapper;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         this.projectRepository = projectRepository;
+        this.projectMapper = projectMapper;
     }
 
     public ProjectResponseDTO createProject(ProjectRequestDTO request) {
 
-        Project project = new Project();
-
-        project.setName(request.getName());
-        project.setRepositoryUrl(request.getRepositoryUrl());
+        Project project = projectMapper.toEntity(request);
 
         Project savedProject = projectRepository.save(project);
 
-        ProjectResponseDTO response = new ProjectResponseDTO();
-
-        response.setId(savedProject.getId());
-        response.setName(savedProject.getName());
-        response.setRepositoryUrl(savedProject.getRepositoryUrl());
-        response.setCreatedAt(savedProject.getCreatedAt());
-
-        return response;
+        return projectMapper.toResponseDTO(savedProject);
     }
 
     public List<ProjectResponseDTO> getAllProjects() {
 
-        List<Project> projects = projectRepository.findAll();
-
-        List<ProjectResponseDTO> response = new ArrayList<>();
-
-        for (Project project : projects) {
-
-            ProjectResponseDTO dto = new ProjectResponseDTO();
-
-            dto.setId(project.getId());
-            dto.setName(project.getName());
-            dto.setRepositoryUrl(project.getRepositoryUrl());
-            dto.setCreatedAt(project.getCreatedAt());
-
-            response.add(dto);
-        }
-
-        return response;
+        return projectRepository.findAll()
+                .stream()
+                .map(projectMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     public ProjectResponseDTO getProjectById(Long id) {
@@ -63,14 +44,7 @@ public class ProjectService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Project not found"));
 
-        ProjectResponseDTO response = new ProjectResponseDTO();
-
-        response.setId(project.getId());
-        response.setName(project.getName());
-        response.setRepositoryUrl(project.getRepositoryUrl());
-        response.setCreatedAt(project.getCreatedAt());
-
-        return response;
+        return projectMapper.toResponseDTO(project);
     }
 
     public ProjectResponseDTO updateProject(Long id, ProjectRequestDTO request) {
@@ -84,14 +58,7 @@ public class ProjectService {
 
         Project savedProject = projectRepository.save(project);
 
-        ProjectResponseDTO response = new ProjectResponseDTO();
-
-        response.setId(savedProject.getId());
-        response.setName(savedProject.getName());
-        response.setRepositoryUrl(savedProject.getRepositoryUrl());
-        response.setCreatedAt(savedProject.getCreatedAt());
-
-        return response;
+        return projectMapper.toResponseDTO(savedProject);
     }
 
     public void deleteProject(Long id) {
@@ -102,5 +69,5 @@ public class ProjectService {
 
         projectRepository.deleteById(id);
     }
-
 }
+
