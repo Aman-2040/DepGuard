@@ -1,6 +1,7 @@
 package org.example.depguard.project;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,13 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<ProjectResponseDTO> getAllProjects() {
-        return projectService.getAllProjects();
+    public Page<ProjectResponseDTO> getAllProjects(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        return projectService.getAllProjects(page, size, sortBy, direction);
     }
 
     @GetMapping("/{id}")

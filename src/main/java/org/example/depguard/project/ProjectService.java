@@ -1,6 +1,9 @@
 package org.example.depguard.project;
 
 import org.example.depguard.mapper.ProjectMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,12 +33,15 @@ public class ProjectService {
         return projectMapper.toResponseDTO(savedProject);
     }
 
-    public List<ProjectResponseDTO> getAllProjects() {
+    public Page<ProjectResponseDTO> getAllProjects(
+            int page, int size, String sortBy, String direction) {
 
-        return projectRepository.findAll()
-                .stream()
-                .map(projectMapper::toResponseDTO)
-                .collect(Collectors.toList());
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        return projectRepository.findAll(PageRequest.of(page, size, sort))
+                .map(projectMapper::toResponseDTO);
     }
 
     public ProjectResponseDTO getProjectById(Long id) {
