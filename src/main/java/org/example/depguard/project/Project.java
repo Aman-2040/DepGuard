@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.example.depguard.scan.Scan;
 
 import java.time.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "projects")
@@ -23,6 +26,18 @@ public class Project {
     private String repositoryUrl;
 
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<Scan> scans = new ArrayList<>();
+
+    public List<Scan> getScans() {
+        return scans;
+    }
+
+    public void addScan(Scan scan) {
+        scans.add(scan);
+        scan.setProject(this);
+    }
 
     public Project() {
     }
