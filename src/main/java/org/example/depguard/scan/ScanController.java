@@ -23,4 +23,11 @@ public class ScanController {
     public List<ScanResponseDTO> getScansByProjectId(@PathVariable Long projectId) {
         return scanService.getScansByProjectId(projectId);
     }
+
+    @GetMapping("/{scanId}")
+    public ScanResponseDTO getScanById(
+            @PathVariable Long projectId,
+            @PathVariable Long scanId) {
+        return scanService.getScanById(projectId, scanId);
+    }
 }

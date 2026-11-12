@@ -6,12 +6,13 @@ import org.example.depguard.scan.Scan;
     public class ScanMapper {
 
         public static ScanResponseDTO toDTO(Scan scan) {
-            return new ScanResponseDTO(
+            return new ScanResponseDTO (
                     scan.getId(),
-                    scan.getStatus(),
+                    scan.getStatus().name(),
                     scan.getStartedAt(),
                     scan.getCompletedAt(),
-                    scan.getProject().getId()
+                    scan.getProject().getId(),
+                    scan.getCreatedAt()
             );
         }
     }

@@ -2,6 +2,7 @@
 package org.example.depguard.scan;
 
 import org.example.depguard.dto.ScanResponseDTO;
+import org.example.depguard.dto.ScanStatusUpdateDTO;
 import org.example.depguard.mapper.ScanMapper;
 import org.example.depguard.project.Project;
 import org.example.depguard.project.ProjectRepository;
@@ -27,7 +28,7 @@ public class ScanService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
-        Scan scan = new Scan("PENDING", LocalDateTime.now());
+        Scan scan = new Scan(ScanStatus.PENDING);
 
         project.addScan(scan);
 
@@ -48,5 +49,73 @@ public class ScanService {
         return scans.stream()
                 .map(ScanMapper::toDTO)
                 .toList();
+    }
+    public ScanResponseDTO getScanById(Long projectId, Long scanId) {
+
+        projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Project not found"
+                ));
+
+        Scan scan = scanRepository.findById(scanId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Scan not found"
+                ));
+
+        if (!scan.getProject().getId().equals(projectId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Scan not found in this project"
+            );
+        }
+
+        return ScanMapper.toDTO(scan);
+    }
+
+    public ScanResponseDTO updateScanStatus(Long projectId, Long scanId, ScanStatusUpdateDTO request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Project not found"));
+        Scan scan = scanRepository.findById(scanId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Scan not found"
+                ));
+        if (!scan.getProject().getId().equals(project.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Scan not found in this project"
+            );
+        }
+        if (request == null || request.getStatus() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Status is required"
+            );
+        }
+        ScanStatus current = scan.getStatus();
+        ScanStatus requested = request.getStatus();
+        boolean allowed =
+                (current == ScanStatus.PENDING &&
+                        (requested == ScanStatus.RUNNING ||
+                                requested == ScanStatus.CANCELLED))
+                        ||
+                        (current == ScanStatus.RUNNING &&
+                                (requested == ScanStatus.COMPLETED ||
+                                        requested == ScanStatus.FAILED));
+        if (!allowed) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid scan status transition"
+            );
+        }
+        scan.setStatus(requested);
+
+        if (requested == ScanStatus.RUNNING) {
+            scan.setStartedAt(LocalDateTime.now());
+        }
+
+        if (requested == ScanStatus.COMPLETED ||
+                requested == ScanStatus.FAILED) {
+            scan.setCompletedAt(LocalDateTime.now());
+        }
+        Scan savedScan = scanRepository.save(scan);
+        return ScanMapper.toDTO(savedScan);
     }
 }

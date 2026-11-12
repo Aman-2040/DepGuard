@@ -13,7 +13,10 @@ public class Scan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ScanStatus status;
+
+    private LocalDateTime createdAt;
 
     private LocalDateTime startedAt;
 
@@ -25,20 +28,28 @@ public class Scan {
 
     public Scan() {}
 
-    public Scan(String status, LocalDateTime startedAt) {
+    public Scan(ScanStatus status) {
         this.status = status;
-        this.startedAt = startedAt;
+    }
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getStatus() {
+    public ScanStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ScanStatus status) {
         this.status = status;
     }
 
