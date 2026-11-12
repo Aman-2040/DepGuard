@@ -1,6 +1,7 @@
 package org.example.depguard.scan;
 
 import org.example.depguard.dto.ScanResponseDTO;
+import org.example.depguard.dto.ScanStatusUpdateDTO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,5 +30,14 @@ public class ScanController {
             @PathVariable Long projectId,
             @PathVariable Long scanId) {
         return scanService.getScanById(projectId, scanId);
+    }
+
+    @PatchMapping("/{scanId}/status")
+    public ScanResponseDTO updateScanStatus(
+            @PathVariable Long projectId,
+            @PathVariable Long scanId,
+            @RequestBody ScanStatusUpdateDTO request) {
+
+        return scanService.updateScanStatus(projectId, scanId, request);
     }
 }

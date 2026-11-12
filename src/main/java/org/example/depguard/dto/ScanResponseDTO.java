@@ -31,6 +31,10 @@ public class ScanResponseDTO {
         return status;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public LocalDateTime getStartedAt() {
         return startedAt;
     }
