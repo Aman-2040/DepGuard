@@ -2,6 +2,10 @@ package org.example.depguard.scan;
 
 import org.example.depguard.dto.ScanResponseDTO;
 import org.example.depguard.dto.ScanStatusUpdateDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +25,16 @@ public class ScanController {
     }
 
     @GetMapping
-    public List<ScanResponseDTO> getScansByProjectId(@PathVariable Long projectId) {
-        return scanService.getScansByProjectId(projectId);
+    public Page<ScanResponseDTO> getScans(
+            @PathVariable Long projectId,
+            @RequestParam(required = false) ScanStatus status,
+            @PageableDefault(
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        return scanService.getScansByProjectId(
+                projectId, status, pageable);
     }
 
     @GetMapping("/{scanId}")

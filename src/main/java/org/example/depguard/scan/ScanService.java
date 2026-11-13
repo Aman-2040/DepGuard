@@ -6,6 +6,10 @@ import org.example.depguard.dto.ScanStatusUpdateDTO;
 import org.example.depguard.mapper.ScanMapper;
 import org.example.depguard.project.Project;
 import org.example.depguard.project.ProjectRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -37,18 +41,25 @@ public class ScanService {
         return ScanMapper.toDTO(savedScan);
     }
 
-    public List<ScanResponseDTO> getScansByProjectId(Long projectId) {
+    public Page<ScanResponseDTO> getScansByProjectId(
+            Long projectId, ScanStatus status, Pageable pageable) {
 
         projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Project not found"
                 ));
 
-        List<Scan> scans = scanRepository.findByProjectId(projectId);
+        Page<Scan> scans;
 
-        return scans.stream()
-                .map(ScanMapper::toDTO)
-                .toList();
+        if (status != null) {
+            scans = scanRepository.findByProjectIdAndStatus(
+                    projectId, status, pageable);
+        } else {
+            scans = scanRepository.findByProjectId(
+                    projectId, pageable);
+        }
+
+        return scans.map(ScanMapper::toDTO);
     }
     public ScanResponseDTO getScanById(Long projectId, Long scanId) {
 
