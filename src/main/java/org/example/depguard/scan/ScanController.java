@@ -52,4 +52,11 @@ public class ScanController {
 
         return scanService.updateScanStatus(projectId, scanId, request);
     }
+
+    @GetMapping("/latest")
+    public ScanResponseDTO getLatestScan(
+            @PathVariable Long projectId) {
+
+        return scanService.getLatestScan(projectId);
+    }
 }

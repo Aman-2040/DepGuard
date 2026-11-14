@@ -8,14 +8,12 @@ import org.example.depguard.project.Project;
 import org.example.depguard.project.ProjectRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class ScanService {
@@ -28,6 +26,7 @@ public class ScanService {
         this.projectRepository = projectRepository;
     }
 
+    @Transactional
     public ScanResponseDTO createScan(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
@@ -41,6 +40,7 @@ public class ScanService {
         return ScanMapper.toDTO(savedScan);
     }
 
+    @Transactional(readOnly = true)
     public Page<ScanResponseDTO> getScansByProjectId(
             Long projectId, ScanStatus status, Pageable pageable) {
 
@@ -61,6 +61,8 @@ public class ScanService {
 
         return scans.map(ScanMapper::toDTO);
     }
+
+    @Transactional(readOnly = true)
     public ScanResponseDTO getScanById(Long projectId, Long scanId) {
 
         projectRepository.findById(projectId)
@@ -82,6 +84,7 @@ public class ScanService {
         return ScanMapper.toDTO(scan);
     }
 
+    @Transactional
     public ScanResponseDTO updateScanStatus(Long projectId, Long scanId, ScanStatusUpdateDTO request) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -126,7 +129,23 @@ public class ScanService {
                 requested == ScanStatus.FAILED) {
             scan.setCompletedAt(LocalDateTime.now());
         }
-        Scan savedScan = scanRepository.save(scan);
-        return ScanMapper.toDTO(savedScan);
+        return ScanMapper.toDTO(scan);
+    }
+
+    @Transactional(readOnly = true)
+    public ScanResponseDTO getLatestScan(Long projectId) {
+
+        projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Project not found"
+                ));
+
+        Scan scan = scanRepository
+                .findFirstByProjectIdOrderByCreatedAtDesc(projectId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No scans found for this project"
+                ));
+
+        return ScanMapper.toDTO(scan);
     }
 }

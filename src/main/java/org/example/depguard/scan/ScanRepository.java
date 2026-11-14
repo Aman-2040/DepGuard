@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ScanRepository extends JpaRepository<Scan, Long> {
     Page<Scan> findByProjectId(Long projectId, Pageable pageable);
@@ -13,4 +14,6 @@ public interface ScanRepository extends JpaRepository<Scan, Long> {
             ScanStatus status,
             Pageable pageable
     );
+
+    Optional<Scan> findFirstByProjectIdOrderByCreatedAtDesc(Long projectId);
 }
