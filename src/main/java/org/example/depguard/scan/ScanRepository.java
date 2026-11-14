@@ -15,5 +15,5 @@ public interface ScanRepository extends JpaRepository<Scan, Long> {
             Pageable pageable
     );
 
-    Optional<Scan> findFirstByProjectIdOrderByCreatedAtDesc(Long projectId);
+    Optional<Scan> findFirstByProjectIdOrderByCreatedAtDescIdDesc(Long projectId);
 }

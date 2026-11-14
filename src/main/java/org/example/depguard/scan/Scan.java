@@ -13,9 +13,11 @@ public class Scan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ScanStatus status;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime startedAt;

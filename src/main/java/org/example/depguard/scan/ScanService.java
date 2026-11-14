@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class ScanService {
@@ -141,7 +142,7 @@ public class ScanService {
                 ));
 
         Scan scan = scanRepository
-                .findFirstByProjectIdOrderByCreatedAtDesc(projectId)
+                .findFirstByProjectIdOrderByCreatedAtDescIdDesc(projectId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "No scans found for this project"
                 ));
