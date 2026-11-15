@@ -1,9 +1,12 @@
 package org.example.depguard.scan;
 
 import jakarta.persistence.*;
+import org.example.depguard.finding.Finding;
 import org.example.depguard.project.Project;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "scans")
@@ -27,6 +30,9 @@ public class Scan {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
+
+    @OneToMany(mappedBy = "scan", fetch = FetchType.LAZY)
+    private List<Finding> findings = new ArrayList<>();
 
     public Scan() {}
 
@@ -77,6 +83,15 @@ public class Scan {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public List<Finding> getFindings() {
+        return findings;
+    }
+
+    public void addFinding(Finding finding) {
+        findings.add(finding);
+        finding.setScan(this);
     }
 
 }
