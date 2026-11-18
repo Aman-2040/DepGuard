@@ -11,6 +11,8 @@ import org.example.depguard.scan.ScanRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 public class FindingService {
 
@@ -44,5 +46,19 @@ public class FindingService {
         return FindingMapper.toResponseDTO(
                 findingRepository.save(finding)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<FindingResponseDTO> getFindingsByScanId(Long scanId) {
+
+        scanRepository.findById(scanId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Scan not found"));
+
+        List<Finding> findings = findingRepository.findByScanId(scanId);
+
+        return findings.stream()
+                .map(FindingMapper::toResponseDTO)
+                .toList();
     }
 }

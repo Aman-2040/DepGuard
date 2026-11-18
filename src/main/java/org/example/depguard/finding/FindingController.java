@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/scans/{scanId}/findings")
 public class FindingController {
@@ -27,5 +29,12 @@ public class FindingController {
                 findingService.createFinding(scanId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public List<FindingResponseDTO> getFindings(
+            @PathVariable Long scanId) {
+
+        return findingService.getFindingsByScanId(scanId);
     }
 }
