@@ -1,6 +1,7 @@
 package org.example.depguard.finding;
 
 import org.example.depguard.dto.FindingCreateDTO;
+import org.example.depguard.dto.FindingResponseDTO;
 import org.example.depguard.mapper.FindingMapper;
 import org.example.depguard.scan.Scan;
 import org.example.depguard.scan.ScanStatus;
@@ -23,7 +24,7 @@ public class FindingService {
     }
 
     @Transactional
-    public Finding createFinding(Long scanId, FindingCreateDTO request) {
+    public FindingResponseDTO createFinding(Long scanId, FindingCreateDTO request) {
 
         Scan scan = scanRepository.findById(scanId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -40,6 +41,8 @@ public class FindingService {
 
         scan.addFinding(finding);
 
-        return findingRepository.save(finding);
+        return FindingMapper.toResponseDTO(
+                findingRepository.save(finding)
+        );
     }
 }
