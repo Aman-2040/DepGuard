@@ -5,6 +5,8 @@ import org.example.depguard.dto.FindingResponseDTO;
 import org.example.depguard.mapper.FindingMapper;
 import org.example.depguard.scan.Scan;
 import org.example.depguard.scan.ScanStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.example.depguard.scan.ScanRepository;
@@ -49,16 +51,37 @@ public class FindingService {
     }
 
     @Transactional(readOnly = true)
-    public List<FindingResponseDTO> getFindingsByScanId(Long scanId) {
+    public Page<FindingResponseDTO> getFindingsByScanId(
+            Long scanId, Severity severity, Pageable pageable) {
 
         scanRepository.findById(scanId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Scan not found"));
 
-        List<Finding> findings = findingRepository.findByScanId(scanId);
+        Page<Finding> findings;
 
-        return findings.stream()
-                .map(FindingMapper::toResponseDTO)
-                .toList();
+        if (severity == null) {
+            findings = findingRepository.findByScanId(scanId, pageable);
+        } else {
+            findings = findingRepository.findByScanIdAndSeverity(
+                    scanId, severity, pageable);
+        }
+
+        return findings.map(FindingMapper::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public FindingResponseDTO getFindingById(Long scanId, Long findingId) {
+
+        scanRepository.findById(scanId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Scan not found"));
+
+        Finding finding = findingRepository
+                .findByScanIdAndId(scanId, findingId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Finding not found"));
+
+        return FindingMapper.toResponseDTO(finding);
     }
 }

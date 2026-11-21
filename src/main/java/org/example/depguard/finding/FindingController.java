@@ -2,6 +2,10 @@ package org.example.depguard.finding;
 
 import org.example.depguard.dto.FindingCreateDTO;
 import org.example.depguard.dto.FindingResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,9 +36,21 @@ public class FindingController {
     }
 
     @GetMapping
-    public List<FindingResponseDTO> getFindings(
-            @PathVariable Long scanId) {
+    public Page<FindingResponseDTO> getFindingsByScanId(
+            @PathVariable Long scanId,
+            @RequestParam(required = false) Severity severity,
+            @PageableDefault(sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return findingService.getFindingsByScanId(scanId);
+        return findingService.getFindingsByScanId(
+                scanId, severity, pageable);
+    }
+
+    @GetMapping("/{findingId}")
+    public FindingResponseDTO getFindingById(
+            @PathVariable Long scanId,
+            @PathVariable Long findingId) {
+
+        return findingService.getFindingById(scanId, findingId);
     }
 }
