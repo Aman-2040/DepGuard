@@ -2,6 +2,7 @@ package org.example.depguard.finding;
 
 import org.example.depguard.dto.FindingCreateDTO;
 import org.example.depguard.dto.FindingResponseDTO;
+import org.example.depguard.dto.FindingSummaryDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -52,5 +53,11 @@ public class FindingController {
             @PathVariable Long findingId) {
 
         return findingService.getFindingById(scanId, findingId);
+    }
+
+    @GetMapping("/summary")
+    public FindingSummaryDTO getFindingSummary(
+            @PathVariable Long scanId) {
+        return findingService.getFindingSummary(scanId);
     }
 }

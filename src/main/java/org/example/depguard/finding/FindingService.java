@@ -2,6 +2,7 @@ package org.example.depguard.finding;
 
 import org.example.depguard.dto.FindingCreateDTO;
 import org.example.depguard.dto.FindingResponseDTO;
+import org.example.depguard.dto.FindingSummaryDTO;
 import org.example.depguard.mapper.FindingMapper;
 import org.example.depguard.scan.Scan;
 import org.example.depguard.scan.ScanStatus;
@@ -83,5 +84,19 @@ public class FindingService {
                         HttpStatus.NOT_FOUND, "Finding not found"));
 
         return FindingMapper.toResponseDTO(finding);
+    }
+
+    @Transactional(readOnly = true)
+    public FindingSummaryDTO getFindingSummary(Long scanId) {
+
+        scanRepository.findById(scanId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Scan not found"));
+
+
+
+        return FindingMapper.toSummaryDTO(
+                findingRepository.countFindingsBySeverity(scanId)
+        );
     }
 }

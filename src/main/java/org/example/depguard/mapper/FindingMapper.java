@@ -2,7 +2,11 @@ package org.example.depguard.mapper;
 
 import org.example.depguard.dto.FindingCreateDTO;
 import org.example.depguard.dto.FindingResponseDTO;
+import org.example.depguard.dto.FindingSummaryDTO;
 import org.example.depguard.finding.Finding;
+import org.example.depguard.finding.Severity;
+
+import java.util.List;
 
 public class FindingMapper {
 
@@ -35,4 +39,35 @@ public class FindingMapper {
 
         return dto;
     }
+
+    public static FindingSummaryDTO toSummaryDTO(List<Object[]> results) {
+
+        FindingSummaryDTO dto = new FindingSummaryDTO();
+
+        long critical = 0;
+        long high = 0;
+        long medium = 0;
+        long low = 0;
+
+        for (Object[] row : results) {
+            Severity severity = (Severity) row[0];
+            long count = ((Number) row[1]).longValue();
+
+            switch (severity) {
+                case CRITICAL -> critical = count;
+                case HIGH -> high = count;
+                case MEDIUM -> medium = count;
+                case LOW -> low = count;
+            }
+        }
+
+        dto.setCritical(critical);
+        dto.setHigh(high);
+        dto.setMedium(medium);
+        dto.setLow(low);
+        dto.setTotal(critical + high + medium + low);
+
+        return dto;
+    }
+
 }
