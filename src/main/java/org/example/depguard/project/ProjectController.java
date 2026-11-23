@@ -54,4 +54,9 @@ public class ProjectController {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/restore")
+    public ProjectResponseDTO restoreProject(@PathVariable Long id) {
+        return projectService.restoreProject(id);
+    }
 }

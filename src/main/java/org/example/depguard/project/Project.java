@@ -30,6 +30,9 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<Scan> scans = new ArrayList<>();
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     public List<Scan> getScans() {
         return scans;
     }
@@ -77,5 +80,12 @@ public class Project {
     }
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

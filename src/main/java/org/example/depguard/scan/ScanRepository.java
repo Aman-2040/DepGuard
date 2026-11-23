@@ -16,4 +16,7 @@ public interface ScanRepository extends JpaRepository<Scan, Long> {
     );
 
     Optional<Scan> findFirstByProjectIdOrderByCreatedAtDescIdDesc(Long projectId);
+
+    boolean existsByProjectId(Long projectId);
+
 }
