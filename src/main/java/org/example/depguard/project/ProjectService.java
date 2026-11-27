@@ -14,20 +14,18 @@ import org.example.depguard.dto.ProjectResponseDTO;
 
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
-    private final ScanRepository scanRepository;
 
-    public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper, ScanRepository scanRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
-        this.scanRepository = scanRepository;
     }
 
+    @Transactional
     public ProjectResponseDTO createProject(ProjectRequestDTO request) {
 
         Project project = projectMapper.toEntity(request);
@@ -37,8 +35,30 @@ public class ProjectService {
         return projectMapper.toResponseDTO(savedProject);
     }
 
+    @Transactional(readOnly = true)
     public Page<ProjectResponseDTO> getAllProjects(
             int page, int size, String sortBy, String direction) {
+
+        if (page < 0 || size < 1 || size > 100) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid pagination parameters");
+        }
+
+        if (sortBy == null ||
+                !List.of("name", "createdAt").contains(sortBy)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid sort field");
+        }
+
+        if (direction == null ||
+                (!direction.equalsIgnoreCase("asc") &&
+                        !direction.equalsIgnoreCase("desc"))) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid sort direction");
+        }
 
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
@@ -49,6 +69,7 @@ public class ProjectService {
                 .map(projectMapper::toResponseDTO);
     }
 
+    @Transactional(readOnly = true)
     public ProjectResponseDTO getProjectById(Long id) {
 
         Project project = projectRepository.findById(id)
@@ -63,6 +84,7 @@ public class ProjectService {
         return projectMapper.toResponseDTO(project);
     }
 
+    @Transactional
     public ProjectResponseDTO updateProject(Long id, ProjectRequestDTO request) {
 
         Project project = projectRepository.findById(id)
@@ -77,11 +99,10 @@ public class ProjectService {
         project.setName(request.getName());
         project.setRepositoryUrl(request.getRepositoryUrl());
 
-        Project savedProject = projectRepository.save(project);
-
-        return projectMapper.toResponseDTO(savedProject);
+        return projectMapper.toResponseDTO(project);
     }
 
+    @Transactional
     public void deleteProject(Long id) {
 
         Project project = projectRepository.findById(id)
@@ -95,7 +116,6 @@ public class ProjectService {
 
         project.setDeleted(true);
 
-        projectRepository.save(project);
     }
 
     @Transactional

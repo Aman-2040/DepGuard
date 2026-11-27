@@ -113,6 +113,40 @@ public class ScanService {
                     HttpStatus.NOT_FOUND, "Project not found");
         }
 
+        if (request == null || request.getStatus() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Status is required"
+            );
+        }
+        ScanStatus current = scan.getStatus();
+        ScanStatus requested = request.getStatus();
+        boolean allowed =
+                (current == ScanStatus.PENDING &&
+                        (requested == ScanStatus.RUNNING ||
+                                requested == ScanStatus.CANCELLED))
+                        ||
+                        (current == ScanStatus.RUNNING &&
+                                (requested == ScanStatus.COMPLETED ||
+                                        requested == ScanStatus.FAILED));
+        if (!allowed) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid scan status transition"
+            );
+        }
+        scan.setStatus(requested);
+
+        if (requested == ScanStatus.RUNNING) {
+            scan.setStartedAt(LocalDateTime.now());
+        }
+
+        if (requested == ScanStatus.COMPLETED ||
+                requested == ScanStatus.FAILED) {
+            scan.setCompletedAt(LocalDateTime.now());
+        }
+        return ScanMapper.toDTO(scan);
+    }
+
     @Transactional(readOnly = true)
     public ScanResponseDTO getLatestScan(Long projectId) {
 
